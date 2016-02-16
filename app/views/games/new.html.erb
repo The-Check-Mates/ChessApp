@@ -1,0 +1,9 @@
+<div id='chessboard'>
+<% ('a'..'h').each do |letter| %>
+	<div class='board_row'> 
+	<% (1..8).each do |number| %>
+		<%= content_tag :div, 'asdf', id: "#{letter}#{number}", class: 'chessboard_space' %>
+	<% end %>
+	</div>
+<% end %>
+</div>

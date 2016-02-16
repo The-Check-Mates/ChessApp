@@ -5,6 +5,7 @@ Chessapp::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   root 'static_pages#index'
+  get '/games/new'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
