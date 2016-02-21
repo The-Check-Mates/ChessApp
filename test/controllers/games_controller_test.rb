@@ -26,7 +26,7 @@ class GamesControllerTest < ActionController::TestCase
   test "each chess board space should be associated with a coordinate" do
   get :new
    
-  ('a'..'h').each do |letter|
+  (1..8).each do |letter|
   (1..8).each do |number|
   assert_select "div##{letter}#{number}", count: 1
   end

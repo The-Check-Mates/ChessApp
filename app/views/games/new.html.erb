@@ -1,5 +1,5 @@
 <div id='chessboard'>
-<% (0..7).each do |letter| %>
+<% (1..8).each do |letter| %>
 	<div class='board-row'> 
 	<% (1..8).each do |number| %>
 		<%= content_tag :div, '', id: "#{letter}#{number}", class: 'chessboard-space' %> 
