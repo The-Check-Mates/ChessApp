@@ -1,0 +1,15 @@
+<div id='chessboard'>
+	<% (1..8).each do |x| %>
+	<div class='board-row'> 
+		<% (1..8).each do |y| %>
+			<%= content_tag :div, '', id: "#{x}#{x}", class: 'chessboard-space' do %>
+				<% @pieces.each do |piece| %>
+					<% if [1,2,7,8].include?(x) && piece.x_coordinate == x && piece.y_coordinate == y %>
+					<%= link_to "#{piece.color[0]}#{piece.type}", "#" %>
+					<% end %>
+				<% end %>
+			<% end %>
+		<% end %>
+	</div>
+	<% end %>
+</div>
