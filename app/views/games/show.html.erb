@@ -1,3 +1,10 @@
+<div class="container">
+	<div class="game-messages col-md-6 col-md-offset-3">
+		You are the <strong><%= current_player.id == @game.white_player_id ? 'White' : 'Black' %></strong> Player. || Current Turn: <strong><%= show_player(@game.turn) %></strong>
+		<%= button_tag 'Leave Game', class: 'btn btn-danger btn-sm pull-right', data: { toggle: 'modal', target: '#leaveGameConfirmation'} %>
+	</div>
+</div>
+
 <div id="chessboard" class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 no-padding">
 	<%= hidden_field :game_id, '', name: nil, id: nil, data: { game_id: @game.id } %>
 	<% (1..8).reverse_each do |y| %>
@@ -15,4 +22,5 @@
 	<% end %>
 </div>
 
-<%= render 'promotion_modal' %>
+<%= render 'leave_game_confirmation_modal' %>
+<%= render 'pieces/promotion_modal' %>

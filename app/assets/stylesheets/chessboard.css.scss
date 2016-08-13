@@ -7,6 +7,7 @@
       vertical-align: middle;
       display: table-cell;
       text-align: center;
+      
       &:hover, &:active {
         text-decoration: none;
       }
@@ -20,7 +21,7 @@
   }
 
   .board-space-content{
-    position:  absolute;
+    position: absolute;
     top: 0;
     left: 0;
     bottom: 0;

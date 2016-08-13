@@ -4,7 +4,11 @@ class Piece < ActiveRecord::Base
   def move_to!(x, y)
   # Open ActiveRecord transaction block (enables rollback of piece move if it would cause check)
     self.transaction do
-    # Immediately return to controller with false if piece movement is obstructed
+    # Immediately return to pieces#update with false if the player associated
+    # with the moving piece does not match the player owning the current turn
+      return false unless player_id == game.turn
+      
+    # Return to controller with false if moving piece is obstructed
       return false if is_obstructed? x, y
       
     # Return to controller with false if coordinates of piece movement path violate specific piece's boundaries

@@ -5,24 +5,40 @@ class PiecesController < ApplicationController
   def update
     x = params[:piece][:x_coordinate].to_i
     y = params[:piece][:y_coordinate].to_i
-  
+    
     if @game.is_finished?
-      flash[:info] = "No more moves permitted. The Game is Over."
+      flash[:info] = "Thank you for playing! This Game is finished."
     else
-      if @piece.move_to! x, y
-        flash[:success] = "#{@piece.color.capitalize} #{@piece.type} move to X#{x}/Y#{y} was valid" if @piece.update_attributes(piece_params.merge(has_moved?: true))
+      if opponent_exists?
+        if valid_player_turn?
+          if @piece.move_to! x, y
+            message =  "#{@piece.color.capitalize} #{@piece.type} has moved to X#{x}/Y#{y}."
+            
+            if @piece.has_moved?
+              flash[:success] = message if @piece.update_attributes(piece_params)
+            else
+              flash[:success] = message if @piece.update_attributes(piece_params.merge(has_moved?: true))
+            end
+            
+            if @game.ends_by_checkmate? @piece.color
+              set_game_winner
+              
+              flash[:info] = "Checkmate! #{Player.find(@game.winning_player_id).email} has won this Game!"
+            else
+              @game.change_player_turn! @piece.color
+              
+              color = @piece.color.eql?('white') ? "Black" : "White"
+              
+              flash[:warning] = "#{color} King is currently in check." if @game.in_check?(@piece.color)
+            end
+          else
+            flash[:danger] = "#{@piece.color.capitalize} #{@piece.type} move to X#{x}/Y#{y} is invalid. Please make a valid move."
+          end
+        else
+          flash[:warning] = "Please wait... Your opponent has not taken their turn yet."
+        end
       else
-        flash[:danger] = "#{@piece.color.capitalize} #{@piece.type} move to X#{x}/Y#{y} was invalid"
-      end
-      
-      if @game.ends_by_checkmate? @piece.color
-        set_game_winner
-        
-        flash[:info] = "Checkmate! #{Player.find(@game.winning_player_id).email} has won this Game!"
-      else
-        color = @piece.color.eql?('white') ? "Black" : "White"
-        
-        flash[:warning] = "#{color} King is in check" if @game.in_check?(@piece.color)
+        flash[:warning] = "Please wait... You do not have an opponent for this Game yet."
       end
     end
     
@@ -37,6 +53,14 @@ class PiecesController < ApplicationController
     
     def set_game
       @game = @piece.game
+    end
+    
+    def opponent_exists?
+      @game.black_player_id ? true : false
+    end
+    
+    def valid_player_turn?
+      @game.turn == current_player.id ? true : false
     end
 
     def piece_params

@@ -18,6 +18,7 @@ class ActiveSupport::TestCase
     password = options[:password]
     post new_player_session_path, player: { email: user.email, password: password }
   end
+
 end
 
 class ActionController::TestCase

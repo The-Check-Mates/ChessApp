@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class KingTest < ActiveSupport::TestCase
+  
   def setup
     game = games(:one)
 
@@ -59,4 +60,5 @@ class KingTest < ActiveSupport::TestCase
     @rook_1b.reload
     assert_equal 4, @rook_1b.x_coordinate, 'Queen-side castle failed for black King?'
   end
+  
 end

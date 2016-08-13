@@ -1,0 +1,27 @@
+<div class="modal fade" id="leaveGameConfirmation" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="forfeit-title">Do You REALLY Want to LEAVE the Game?</h4>
+        <% white_has_moved = @game.pieces.where(color: 'white', has_moved?: true).any? %>
+        <% black_has_moved = @game.pieces.where(color: 'black', has_moved?: true).any? %>
+        <% if @game.black_player_id.nil? %>
+        <p class="text-center forfeit-yes"><strong>NOTE</strong>: By choosing <strong>YES</strong>, since you are the only Player present, this<br>Game will be deleted and you will be returned to the home page</p>
+        <% elsif current_player.id == @game.black_player_id && !black_has_moved %>
+        <p class="text-center forfeit-yes"><strong>NOTE</strong>: By choosing <strong>YES</strong>, another Player will have<br>the opportunity to take your seat in this Game.</p>
+        <% elsif !white_has_moved || ( white_has_moved && !black_has_moved ) %>
+        <p class="text-center forfeit-yes"><strong>NOTE</strong>: By choosing <strong>YES</strong>, this Game will be deleted. Both You<br>and your opponent, <strong><%= show_player(@game.black_player_id).split("@")[0] %></strong>, will be returned to the home page.</p>
+        <% elsif current_player.id == @game.white_player_id && white_has_moved %>
+        <p class="text-center forfeit-yes"><strong>NOTE</strong>: By choosing <strong>YES</strong>, you will forfeit this<br>Game and <strong><%= show_player(@game.black_player_id).split("@")[0] %></strong> will be recorded as the <strong>Winner</strong>.</p>
+        <% elsif current_player.id == @game.black_player_id && black_has_moved %>
+        <p class="text-center forfeit-yes"><strong>NOTE</strong>: By choosing <strong>YES</strong>, you will forfeit this<br>Game and <strong><%= show_player(@game.white_player_id).split("@")[0] %></strong> will be recorded as the <strong>Winner</strong>.</p>
+        <% end %>
+      </div>
+      <div class="modal-body text-center">
+        <% player_color = current_player.id == @game.white_player_id ? 'white' : 'black' %>
+        <%= button_tag 'YES', name: nil, type: nil, class: 'leave-game-confirmation-btn btn btn-danger btn-lg', data: { player_color: player_color } %>
+        <button type="button" class="btn btn-primary btn-lg" data-dismiss="modal">NO</button>
+      </div>
+    </div>
+  </div>
+</div>

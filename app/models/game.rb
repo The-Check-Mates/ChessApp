@@ -4,28 +4,18 @@ class Game < ActiveRecord::Base
   has_many :pieces
 
   after_create :populate_board!
+  after_create :set_first_turn!
+  after_update :assign_black_pieces!
 
   # Returns true/false if a coordinate contains a piece.
   def contains_piece?(x, y)
     # Determines if a piece is at given location.
     pieces.where(x_coordinate: x, y_coordinate: y, captured?: false).present?
   end
-
-  def create_pieces(color, row, pawn_row)
-    # Enumerator of Piece types in the correct order for chess
-    non_pawn = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook].to_enum
-    # Creates each Piece type in 'non_pawn' plus a pawn
-    non_pawn.with_index(1).each do |piece, i|
-      piece.create(game_id: id, x_coordinate: i, y_coordinate: row, color: color)
-      Pawn.create(game_id: id, x_coordinate: i, y_coordinate: pawn_row, color: color)
-    end
-  end
-
-  def populate_board!
-    # white pieces
-    create_pieces 'white', 1, 2
-    # black pieces
-    create_pieces 'black', 8, 7
+  
+  def change_player_turn!(color)
+    next_player = color.eql?('white') ? black_player_id : white_player_id
+    update_attribute(:turn, next_player)
   end
 
   def in_check?(color)
@@ -236,4 +226,36 @@ class Game < ActiveRecord::Base
     @en_passant_capture_opportunity
   end
 
+  private
+
+    def populate_board!
+      # white pieces
+      create_pieces 'white', 1, 2
+      # black pieces
+      create_pieces 'black', 8, 7
+    end
+    
+    def create_pieces(color, row, pawn_row)
+      # Enumerator of Piece types in the correct order for chess
+      non_pawn = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook].to_enum
+      # Creates each Piece type in 'non_pawn' plus a pawn
+      non_pawn.with_index(1).each do |piece, i|
+        if color.eql? 'white'
+          piece.create(game_id: id, x_coordinate: i, y_coordinate: row, color: color, player_id: white_player_id)
+          Pawn.create(game_id: id, x_coordinate: i, y_coordinate: pawn_row, color: color, player_id: white_player_id)
+        else
+          piece.create(game_id: id, x_coordinate: i, y_coordinate: row, color: color)
+          Pawn.create(game_id: id, x_coordinate: i, y_coordinate: pawn_row, color: color)
+        end
+      end
+    end
+    
+    def set_first_turn!
+      update_attribute(:turn, white_player_id)
+    end
+    
+    def assign_black_pieces!
+      pieces.where(color: 'black').each { |piece| piece.update_attribute(:player_id, black_player_id) }
+    end
+  
 end

@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class PawnTest < ActiveSupport::TestCase
+  
   def setup
     game = games(:one)
 
@@ -64,4 +65,5 @@ class PawnTest < ActiveSupport::TestCase
       refute black_pawn.valid_move?(k, 8), "p#{k}b can move from X#{k}/Y7 to X#{k}/Y8?"
     end
   end
+  
 end

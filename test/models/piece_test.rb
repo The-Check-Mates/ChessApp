@@ -1,9 +1,18 @@
 require 'test_helper'
 
 class PieceTest < ActiveSupport::TestCase
+  
   def setup
     @game = games(:one)
 
+    @player_1 = players(:player_1)
+    @player_2 = players(:player_2)
+    
+    @game.white_player_id = @player_1.id
+    @game.black_player_id = @player_2.id
+
+    @game.turn = @player_1.id
+    
     @a1 = Rook.create(game: @game, color: 'black', x_coordinate: 1, y_coordinate: 1)
     @a2 = Pawn.create(game: @game, color: 'black', x_coordinate: 1, y_coordinate: 2)
     @a6 = Bishop.create(game: @game, color: 'white', x_coordinate: 1, y_coordinate: 6)
@@ -12,12 +21,12 @@ class PieceTest < ActiveSupport::TestCase
     @c4 = Pawn.create(game: @game, color: 'black', x_coordinate: 3, y_coordinate: 4)
     @c5 = King.create(game: @game, color: 'black', x_coordinate: 3, y_coordinate: 5)
     @c6 = Pawn.create(game: @game, color: 'black', x_coordinate: 3, y_coordinate: 6)
-    @c7 = Knight.create(game: @game, color: 'black', x_coordinate: 3, y_coordinate: 7)
+    @c7 = Knight.create(game: @game, color: 'black', x_coordinate: 3, y_coordinate: 7, player_id: @player_2.id)
 
-    @d4 = Knight.create(game: @game, color: 'white', x_coordinate: 4, y_coordinate: 4)
+    @d4 = Knight.create(game: @game, color: 'white', x_coordinate: 4, y_coordinate: 4, player_id: @player_1.id)
 
     @e2 = Pawn.create(game: @game, color: 'black', x_coordinate: 5, y_coordinate: 2)
-    @e5 = Pawn.create(game: @game, color: 'black', x_coordinate: 5, y_coordinate: 5)
+    @e5 = Pawn.create(game: @game, color: 'black', x_coordinate: 5, y_coordinate: 5, player_id: @player_2.id)
     @e6 = Rook.create(game: @game, color: 'black', x_coordinate: 5, y_coordinate: 6)
     @e7 = Queen.create(game: @game, color: 'white', x_coordinate: 5, y_coordinate: 7)
 
@@ -42,12 +51,32 @@ class PieceTest < ActiveSupport::TestCase
     assert_not @a8.is_obstructed?(3, 8), 'Should be false'
   end
 
+  test "should capture black piece" do
+    # Test white Knight capturing a black Pawn
+    assert @d4.move_to!(5, 2), "White knight can't capture black pawn?"
+    # Reload the Pawn object to refresh its captured attribute
+    @e2.reload
+    assert @e2.captured?, "Black pawn not captured?"
+  end
+
+  test "should capture white piece" do
+    @game.turn = @player_2.id
+
+    # Test black Knight capturing a white Bishop
+    assert @c7.move_to!(1, 6), "Black knight can't capture white bishop?"
+    # Reload the Bishop object to refresh its captured attribute
+    @a6.reload
+    assert @a6.captured?, "White bishop not captured?"
+  end
+
   test 'capturing of pieces' do
     # Test white Knight capturing a black Pawn
     assert @d4.move_to!(5, 2), "White knight can't capture black pawn?"
     # Reload the Pawn object to refresh its captured attribute
     @e2.reload
     assert @e2.captured?, 'Black pawn not captured?'
+
+    @game.turn = @player_2.id
 
     # Test black Pawn capturing a white Knight
     assert @e5.move_to!(4, 4), "Black pawn can't capture white Knight?"
@@ -77,4 +106,5 @@ class PieceTest < ActiveSupport::TestCase
     @e6.move_to! 5, 5
     assert_not @e6.game.in_check?(@e6.color), 'Game still in check?'
   end
+  
 end
