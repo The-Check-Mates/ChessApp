@@ -236,4 +236,8 @@ class Game < ActiveRecord::Base
     @en_passant_capture_opportunity
   end
 
+  def stalemate?
+    
+  end
+
 end
